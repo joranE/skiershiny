@@ -45,7 +45,7 @@ hth_dst_data <- function(con,ath_compid,opp_compid,race_cat,race_tech,
 }
 
 hth_dst_plot <- function(dst_data,y_measure = "rnk_diff"){
-	if (is.null(dst_data)){
+	if (is.null(dst_data) || nrow(dst_data) == 0){
 		return(NULL)
 	}
 	nm <- dst_data$ath_name[1]

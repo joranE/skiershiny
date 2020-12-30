@@ -1,6 +1,3 @@
-theme_set(theme_bw(base_size = 12))
-
-
 #### DISTANCE ####
 ss_dst_data <- function(con,compid,race_cat,race_tech,
 												race_format,race_length,fispoints_max){
@@ -60,6 +57,9 @@ ss_dst_data <- function(con,compid,race_cat,race_tech,
 }
 
 ss_dst_plot <- function(race_data){
+	if (is.null(race_data) || nrow(race_data) == 0){
+		return(NULL)
+	}
 	p <- ggplot(data = race_data,aes(x = date,y = y_value)) + 
 		facet_wrap(~y_measure,nrow = 3,scales = "free_y") +
 		geom_point() +
@@ -170,7 +170,9 @@ ss_spr_data <- function(con,compid,race_cat = "all",
 }
 
 ss_spr_plot <- function(race_data){
-	
+	if (is.null(race_data) || nrow(race_data) == 0){
+		return(NULL)
+	}
 	p <- ggplot(data = race_data,aes(x = date,y = y_value)) + 
 		facet_wrap(~y_measure,nrow = 3,scales = "free_y") +
 		geom_point() +

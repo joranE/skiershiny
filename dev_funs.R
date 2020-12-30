@@ -1,9 +1,11 @@
 DST_DEV <- readr::read_csv(file = "dst_fp_dev.csv",col_types = "dcdd") %>%
 	rename(`50th` = q_upper,`10th` = q_lower) %>%
-	tidyr::gather(key = "pct",value = "val",`50th`,`10th`)
+	tidyr::gather(key = "pct",value = "val",`50th`,`10th`) %>%
+	filter(age <= 30)
 SPR_DEV <- readr::read_csv(file = "spr_fp_dev.csv",col_types = "dcdd") %>%
 	rename(`50th` = q_upper,`10th` = q_lower) %>%
-	tidyr::gather(key = "pct",value = "val",`50th`,`10th`)
+	tidyr::gather(key = "pct",value = "val",`50th`,`10th`) %>%
+	filter(age <= 30)
 
 #### DISTANCE ####
 dev_dst_data <- function(con,compid){

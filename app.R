@@ -16,12 +16,16 @@ library(shinythemes)
 library(shinycssloaders)
 library(stringr)
 library(purrr)
+library(markdown)
 
+source("utils.R")
 source("ss_funs.R")
 source("read_sql.R")
 source("hth_funs.R")
 source("dev_funs.R")
 source("snap_funs.R")
+
+theme_set(theme_bw(base_size = 14))
 
 #### DB Connection Prep ####
 #Create connection pool
@@ -41,11 +45,12 @@ skier <- dplyr::tbl(src = con_pool,"skier")
 skier_names <- skier %>%
 	select(name,fisid,compid) %>%
 	collect() %>%
-	mutate(name_fisid = paste(name," (",fisid,")",sep = "")) %>%
-	sample_frac(size = 0.75)
+	mutate(name_fisid = paste(name," (",fisid,")",sep = "")) 
+	#sample_frac(size = 0.75)
 skier_names <- as.list(setNames(skier_names$compid,skier_names$name_fisid))
 skier_names <- c("Start typing..." = "",skier_names)
 
+#### UI ####
 ui <- navbarPage(
 	title = "Statistical Skier",
 	id = "nav_tabs",
@@ -111,6 +116,7 @@ ui <- navbarPage(
 					inputId = "ss_go",
 					label = "Reload"
 				),
+				hr(),
 				helpText("Select a plot region to display additional details",
 								 "below the graph. Clicking on one of the resulting",
 								 "table rows will display splits or heat times if",
@@ -326,13 +332,13 @@ ui <- navbarPage(
 						title = "Distance",
 						outputId = "dev_dst",
 						
-						plotOutput(outputId = "dev_dst_plot") %>% withSpinner()
+						plotOutput(outputId = "dev_dst_plot",height = "600px") %>% withSpinner()
 					),
 					tabPanel(
 						title = "Sprint",
 						outputId = "dev_spr",
 						
-						plotOutput(outputId = "dev_spr_plot") %>% withSpinner()
+						plotOutput(outputId = "dev_spr_plot",height = "600px") %>% withSpinner()
 					)
 				)
 			)
@@ -361,10 +367,14 @@ ui <- navbarPage(
 					step = 5,
 					post = "%"
 				),
+				hr(),
 				actionButton(
 					inputId = "snap_go",
 					label = "Reload"
-				)
+				),
+				hr(),
+				helpText("Be aware that this graph is particularly",
+								 "meaningless for non-WC/TdS/WSC/OWG sprint races.")
 			),
 			
 			mainPanel(
@@ -384,6 +394,7 @@ ui <- navbarPage(
 		includeMarkdown("faq.md")
 		)
 )
+
 
 
 #### SERVER ####
