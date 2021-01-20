@@ -75,7 +75,8 @@ dst_split_plot <- function(race_data,show_top = NULL){
 		facet_wrap(~facet_label,nrow = 2,scales = "free_y") +
 		geom_line(alpha = 0.5,na.rm = TRUE) + 
 		scale_x_continuous(breaks = unique(race_data$split_km),expand = c(0.01,0)) +
-		labs(x = "Km",y = NULL)
+		labs(x = "km",y = NULL) + 
+		theme(axis.text = element_text(size = 10))
 	
 	p_ly <- ggplotly(p,tooltip = "name") %>% config(displayModeBar = FALSE)
 	p_ly_highlight <- highlight(p_ly,
