@@ -62,7 +62,7 @@ ss_dst_plot <- function(race_data){
 	}
 	p <- ggplot(data = race_data,aes(x = date,y = y_value)) + 
 		facet_wrap(~y_measure,nrow = 3,scales = "free_y") +
-		geom_point() +
+		geom_point(na.rm = TRUE) +
 		labs(x = "Date",y = NULL,caption = "@statskier - statisticalskier.com")
 	
 	p
@@ -100,13 +100,13 @@ ss_dst_splits_plot <- function(split_data,ath_ids){
 	
 	ggplot() + 
 		facet_wrap(~race_key,scales = "free") +
-		geom_rug(data = rug_dat,aes(x = split_km,y = NULL),sides = "t") +
+		geom_rug(data = rug_dat,aes(x = split_km,y = NULL),sides = "t",na.rm = TRUE) +
 		geom_line(data = split_data %>% filter(!compid %in% ath_ids),
 							aes(x = split_km,y = segment_pace,group = compid),
-							color = "grey",alpha = 0.5) + 
+							color = "grey",alpha = 0.5,na.rm = TRUE) + 
 		geom_line(data = split_data %>% filter(compid %in% ath_ids),
 							aes(x = split_km,y = segment_pace,group = compid),
-							color = "blue",size = 1.25) + 
+							color = "blue",size = 1.25,na.rm = TRUE) + 
 		labs(x = "km",y = "Segment Pace (sec/km)",
 				 color = "Skier",title = "Entire Field",
 				 caption = "@statskier - statisticalskier.com")
@@ -176,7 +176,7 @@ ss_spr_plot <- function(race_data){
 	}
 	p <- ggplot(data = race_data,aes(x = date,y = y_value)) + 
 		facet_wrap(~y_measure,nrow = 3,scales = "free_y") +
-		geom_point() +
+		geom_point(na.rm = TRUE) +
 		labs(x = "Date",y = NULL,caption = "@statskier - statisticalskier.com")
 	
 	p

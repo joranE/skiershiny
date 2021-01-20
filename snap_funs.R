@@ -218,9 +218,9 @@ snap_plot_dst <- function(race_data,y_measure = "pbm"){
 							aes(ymin = ymn,ymax = ymx,
 									xmin = -Inf,xmax = Inf,
 									fill = block),alpha = 0.25,show.legend = FALSE) +
-		geom_segment(data = ath_bars,aes(x = q25,xend = q75,y = name1,yend = name1)) +
-		geom_point(data = cur_race,aes(x = y,y = name1),color = "red") +
-		geom_point(data = ath_min,aes(x = y,y = name1),alpha = 0.5) +
+		geom_segment(data = ath_bars,aes(x = q25,xend = q75,y = name1,yend = name1),na.rm = TRUE) +
+		geom_point(data = cur_race,aes(x = y,y = name1),color = "red",na.rm = TRUE) +
+		geom_point(data = ath_min,aes(x = y,y = name1),alpha = 0.5,na.rm = TRUE) +
 		scale_fill_manual(values = c('#778899','#2F4F4F')) +
 		ggtitle(label = title,
 						subtitle = "For >=10 prior races, bars represent 25th-75th percentile of past performance") +
@@ -315,9 +315,9 @@ snap_plot_spr <- function(race_data){
 							aes(ymin = ymn,ymax = ymx,
 									xmin = -Inf,xmax = Inf,
 									fill = block),alpha = 0.25,show.legend = FALSE) +
-		geom_segment(data = ath_bars,aes(x = q25,xend = q75,y = name1,yend = name1)) +
-		geom_point(data = ath_min,aes(x = rank,y = name1),alpha = 0.5) +
-		geom_point(data = cur_race,aes(x = rank,y = name1),color = "red") +
+		geom_segment(data = ath_bars,aes(x = q25,xend = q75,y = name1,yend = name1),na.rm = TRUE) +
+		geom_point(data = ath_min,aes(x = rank,y = name1),alpha = 0.5,na.rm = TRUE) +
+		geom_point(data = cur_race,aes(x = rank,y = name1),color = "red",na.rm = TRUE) +
 		scale_fill_manual(values = c('#778899','#2F4F4F')) +
 		ggtitle(label = title,
 						subtitle = "For >=10 prior races, bars represent 25th-75th percentile of past performance") +

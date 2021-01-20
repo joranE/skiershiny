@@ -43,8 +43,8 @@ dev_dst_plot <- function(dev_dst_data){
 	
 	ggplot() + 
 		fw +
-		geom_point(data = dev_dst_data,aes(x = age,y = fispoints),alpha = 0.5) + 
-	  geom_line(data = dev_ref,aes(x = age,y = val,color = pct,group = pct)) + 
+		geom_point(data = dev_dst_data,aes(x = age,y = fispoints),alpha = 0.5,na.rm = TRUE) + 
+	  geom_line(data = dev_ref,aes(x = age,y = val,color = pct,group = pct),na.rm = TRUE) + 
 		scale_color_manual(values = c(`50th` = "blue",`10th` = "red")) +
 		labs(x = "Age",y = "FIS Points",color = "Target FIS Point %-tile",
 				 caption = "@statskier - statisticalskier.com") + 
@@ -87,8 +87,8 @@ dev_spr_plot <- function(dev_spr_data){
 	
 	ggplot() + 
 		fw +
-		geom_point(data = dev_spr_data,aes(x = age,y = fispoints),alpha = 0.5) + 
-		geom_line(data = dev_ref,aes(x = age,y = val,color = pct,group = pct)) + 
+		geom_point(data = dev_spr_data,aes(x = age,y = fispoints),alpha = 0.5,na.rm = TRUE) + 
+		geom_line(data = dev_ref,aes(x = age,y = val,color = pct,group = pct),na.rm = TRUE) + 
 		scale_color_manual(values = c(`50th` = "blue",`10th` = "red")) +
 		labs(x = "Age",y = "FIS Points",color = "Target FIS Point %-tile",
 				 caption = "@statskier - statisticalskier.com") + 

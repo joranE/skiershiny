@@ -113,10 +113,10 @@ hth_dst_splits_plot <- function(split_data,ath_ids){
 		geom_rug(data = rug_all,aes(x = split_km,y = NULL),sides = "t") +
 		geom_line(data = dst_splits_all %>% filter(!compid %in% ath_ids),
 							aes(x = split_km,y = segment_pace,group = compid),
-							color = "grey",alpha = 0.5) + 
+							color = "grey",alpha = 0.5,na.rm = TRUE) + 
 		geom_line(data = dst_splits_all %>% filter(compid %in% ath_ids),
 							aes(x = split_km,y = segment_pace,color = color_key,group = compid),
-							size = 1.25) + 
+							size = 1.25,na.rm = TRUE) + 
 		#scale_y_continuous(labels = scales::percent_format()) +
 		labs(x = "km",y = "Segment Pace (sec/km)",
 				 color = "Skier",title = "Entire Field")
@@ -125,7 +125,7 @@ hth_dst_splits_plot <- function(split_data,ath_ids){
 		facet_wrap(~race_key,scales = "free") +
 		geom_rug(data = rug_red,aes(x = split_km,y = NULL),sides = "t") +
 		geom_line(data = dst_splits_red,
-							aes(x = split_km,y = split_tb,color = name,group = name)) +
+							aes(x = split_km,y = split_tb,color = name,group = name),na.rm = TRUE) +
 		labs(x = "km",y = "Time Back (sec)",
 				 color = "Skier",title = "Selected Skiers",
 				 caption = "@statskier - statisticalskier.com")
@@ -207,7 +207,7 @@ hth_spr_plot <- function(spr_data,y_measure){
 	p <- ggplot(data = spr_data,aes(x = date,!!y_measure)) + 
 		fw + 
 		geom_hline(yintercept = 0,color = "blue") +
-		geom_point() + 
+		geom_point(na.rm = TRUE) + 
 		labs(x = "Date",y = y_lab,
 				 title = paste(nm,"vs:"),
 				 subtitle = glue::glue("Positive values are wins for {nm}."),
@@ -253,7 +253,7 @@ hth_spr_heats_plot <- function(spr_heats_data){
 	ggplot() + 
 		fw + 
 		geom_hline(yintercept = 0,color = "blue") +
-		geom_jitter(data = spr_heats_data,aes(x = spr_round,y = heat_time_diff),width = 0.25) + 
+		geom_jitter(data = spr_heats_data,aes(x = spr_round,y = heat_time_diff),width = 0.25,na.rm = TRUE) + 
 		labs(x = "Round",y = "Time Difference (sec)",
 				 title = paste(nm,"vs:"),
 				 subtitle = glue::glue("Positive values are wins for {nm}."),
