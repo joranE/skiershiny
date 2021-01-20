@@ -28,8 +28,15 @@ system of my own devising whose main advantages are:
 * exceptional skiers (e.g. Marit Bjoergen) are less likely to distort everyone's points,
 * more comparable across race formats (interval start, mass start, etc.).
 
-Race penalties are calculated in a roughly analogous was as FIS points. Instead
-of being set by the top five finishers it is set by the "middle five" finishers.
+Race penalties are calculated in a roughly analogous way as FIS points. However, 
+instead of being set by the top five finishers it is set by the "middle five" 
+finishers. Additionally, race penalties are not forced to be zero for WC and 
+similar events. Instead, race penalties are applied to all races, but they are
+inflated by a constant scaling factor for non-WC races.
+
+Of course, it could also end up not working as well as I'd thought as I get to
+see it in action over a real season. The plan is to evaluate and adjust next 
+summer.
 
 ***
 
@@ -72,7 +79,7 @@ and clicking on one of the resulting rows will show split times (if available).
 
 ***
 
-#### FIS Point Development
+#### Development Progress
 This section allows you to compare a collection of skiers to an "elite standard".
 Specifically, it shows FIS points by age for the selected skiers with reference
 lines for the 50th and 10th percentiles of FIS points for skiers who have achieved
@@ -86,10 +93,24 @@ from a GAM (Generalized Additive Model). Fancy!
 This section shows the standard race snapshot graphs that have been a staple of 
 my Twitter feed for several years. Pick a date, then click on a race from that
 day and it will produce a race snapshot for that race. The measure for distance 
-events is my own PBM (percent back from the median) points and finishing place for
-sprints. Normally I have only produced these plots for major international races, 
+events can be switched between the raw PBM skier, which is what I've traditionally
+used for WC-level races, or PBM points or FIS points. Ther PBM points options will
+tend to be more opinionated about field strength, but is more appropriate for non-WC
+level races. Sprint races will always use the final finishing place. 
+Normally I have only produced these plots for major international races, 
 but this will allow you to make them for pretty much any race. For WC/TdS/WSC/OWG races it
 uses only equivalent historical results from the same set of races. For any other
 generic FIS race is uses all historical results for each athlete. This means that
 these graphs for non-WC sprint races are essenitally meaningless. I'll keep thinking
 about it and maybe come up with something.
+
+***
+
+#### Sprint Heat Progressions
+This section is for displaying heat times as athletes progress through sprint
+race rounds (qualification, quarterfinals, semifinals, finals). You can choose
+from either the raw heat times, the difference from the median time in that round
+and the difference from the advancement threshold time. This last measure is an
+attempt to show how far people were from the minimum time necessary to advance to
+the next round. (In the special case of the finals, the 'threshold' is the 3rd 
+place time.) In general, all three measure look fairly similar.
