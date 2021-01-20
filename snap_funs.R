@@ -99,12 +99,12 @@ snap_data <- function(con,ev_info,top_pct){
 	
 }
 
-snap_plot <- function(race_data){
+snap_plot <- function(race_data,dst_y_measure){
 	if (is.null(race_data) || length(race_data) == 0 || is.null(race_data$ev_type)){
 		return(NULL)
 	}
 	if (race_data$ev_type == "Distance"){
-		p <- snap_plot_dst(race_data)
+		p <- snap_plot_dst(race_data,dst_y_measure)
 		return(p)
 	}
 	if (race_data$ev_type == "Sprint"){
@@ -116,11 +116,17 @@ snap_plot <- function(race_data){
 	
 }
 
-snap_plot_dst <- function(race_data){
-	cur_race <- race_data$cur_race
-	race_history <- race_data$race_history
+snap_plot_dst <- function(race_data,y_measure = "pbm"){
+	cur_race <- race_data$cur_race %>%
+		mutate(y = !!rlang::sym(y_measure))
+	race_history <- race_data$race_history %>%
+		mutate(y = !!rlang::sym(y_measure))
 	tech_label <- race_data$tech_label
 	format_label <- race_data$format_label
+	x_lab <- switch(y_measure,
+									"pbm" = "% Behind Median Skier",
+									"pbm_pts" = "PBM Points",
+									"fispoints" = "FIS Points")
 	
 	title_template <- "{site}, {location} {gender}'s {tag} {length}km {tech} {format} - {date}"
 	title <- glue::glue(title_template,
@@ -142,25 +148,27 @@ snap_plot_dst <- function(race_data){
 	ath_min_races_format <- race_history %>%
 		filter(same_format == 'Yes' & nrace_format < 10) %>%
 		as.data.frame()
-	ath_min <- bind_rows(setNames(list(ath_min_races_overall,ath_min_races_tech,ath_min_races_format),
+	ath_min <- bind_rows(setNames(list(ath_min_races_overall,
+																		 ath_min_races_tech,
+																		 ath_min_races_format),
 																c('Overall',tech_label,format_label)),
 											 .id = 'facet_grp')
 	
 	ath_bars_overall <- race_history %>%
 		filter(nrace_overall >= 10) %>%
 		group_by(name1) %>%
-		summarise(q25 = quantile(pbm,0.25,na.rm = TRUE),
-							q75 = quantile(pbm,0.75,na.rm = TRUE))
+		summarise(q25 = quantile(y,0.25,na.rm = TRUE),
+							q75 = quantile(y,0.75,na.rm = TRUE))
 	ath_bars_tech <- race_history %>%
 		filter(same_tech == 'Yes' & nrace_tech >= 10) %>%
 		group_by(name1) %>%
-		summarise(q25 = quantile(pbm,0.25,na.rm = TRUE),
-							q75 = quantile(pbm,0.75,na.rm = TRUE))
+		summarise(q25 = quantile(y,0.25,na.rm = TRUE),
+							q75 = quantile(y,0.75,na.rm = TRUE))
 	ath_bars_format <- race_history %>%
 		filter(same_format == 'Yes' & nrace_format >= 10) %>%
 		group_by(name1) %>%
-		summarise(q25 = quantile(pbm,0.25,na.rm = TRUE),
-							q75 = quantile(pbm,0.75,na.rm = TRUE))
+		summarise(q25 = quantile(y,0.25,na.rm = TRUE),
+							q75 = quantile(y,0.75,na.rm = TRUE))
 	ath_bars <- bind_rows(setNames(list(ath_bars_overall,ath_bars_tech,ath_bars_format),
 																 c('Overall',tech_label,format_label)),
 												.id = 'facet_grp')
@@ -205,19 +213,21 @@ snap_plot_dst <- function(race_data){
 	
 	p <- ggplot() +
 		facet_wrap(~facet_grp,nrow = 1,scale = "free_x") +
-		geom_blank(data = cur_race,aes(x = pbm,y = name1)) +
+		geom_blank(data = cur_race,aes(x = y,y = name1)) +
 		geom_rect(data = block,
 							aes(ymin = ymn,ymax = ymx,
 									xmin = -Inf,xmax = Inf,
 									fill = block),alpha = 0.25,show.legend = FALSE) +
 		geom_segment(data = ath_bars,aes(x = q25,xend = q75,y = name1,yend = name1)) +
-		geom_point(data = cur_race,aes(x = pbm,y = name1),color = "red") +
-		geom_point(data = ath_min,aes(x = pbm,y = name1),alpha = 0.5) +
+		geom_point(data = cur_race,aes(x = y,y = name1),color = "red") +
+		geom_point(data = ath_min,aes(x = y,y = name1),alpha = 0.5) +
 		scale_fill_manual(values = c('#778899','#2F4F4F')) +
 		ggtitle(label = title,
 						subtitle = "For >=10 prior races, bars represent 25th-75th percentile of past performance") +
-		labs(x = '% Behind Median Skier',y = 'Athlete',
-				 fill = "") +
+		labs(x = x_lab,
+				 y = 'Athlete',
+				 fill = "",
+				 caption = "@statskier - statisticalskier.com") +
 		theme_bw()
 	p
 }
@@ -311,7 +321,10 @@ snap_plot_spr <- function(race_data){
 		scale_fill_manual(values = c('#778899','#2F4F4F')) +
 		ggtitle(label = title,
 						subtitle = "For >=10 prior races, bars represent 25th-75th percentile of past performance") +
-		labs(x = 'Finishing Place',y = 'Athlete',fill = "") +
+		labs(x = 'Finishing Place',
+				 y = 'Athlete',
+				 fill = "",
+				 caption = "@statskier - statisticalskier.com") +
 		theme_bw()
 	p
 }
