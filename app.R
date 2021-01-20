@@ -24,12 +24,13 @@ source("read_sql.R")
 source("hth_funs.R")
 source("dev_funs.R")
 source("snap_funs.R")
+source("prog_funs.R")
 
 theme_set(theme_bw(base_size = 14))
 
 #### DB Connection Prep ####
 #Create connection pool
-con_args <- config::get("dataconnection",config = "default")
+con_args <- config::get("dataconnection",config = "shinyapps")
 con_pool <- pool::dbPool(RPostgres::Postgres(),
 												 host = con_args$host,
 												 dbname = con_args$dbname,
@@ -51,7 +52,8 @@ skier_names <- as.list(setNames(skier_names$compid,skier_names$name_fisid))
 skier_names <- c("Start typing..." = "",skier_names)
 
 #### UI ####
-ui <- navbarPage(
+ui <- function(request){
+	navbarPage(
 	title = "Statistical Skier",
 	id = "nav_tabs",
 	theme = shinytheme("flatly"),
@@ -270,7 +272,7 @@ ui <- navbarPage(
 						conditionalPanel("input.hth_dst_plot_brush != null",
 														 DTOutput("hth_dst_plot_brush_info") %>% withSpinner()),
 						conditionalPanel("input.hth_dst_plot_brush_info_rows_selected != null",
-														 plotOutput(outputId = "hth_dst_splits") %>% withSpinner())
+														 plotOutput(outputId = "hth_dst_splits",height = "600px") %>% withSpinner())
 					),
 					tabPanel(
 						title = "Sprint",
@@ -345,7 +347,7 @@ ui <- navbarPage(
 		)
 		),
 	
-	#### RACE SUMMARIES ####
+	#### RACE SNAPSHOTS ####
 	tabPanel(
 		title = "Race Snapshots",
 		value = "snap_tab",
@@ -367,14 +369,28 @@ ui <- navbarPage(
 					step = 5,
 					post = "%"
 				),
+				radioButtons(
+					inputId = "snap_dst_y_measure",
+					label = "Distance race measure:",
+					choices = c("Raw PBM Skier" = "pbm",
+											"PBM Points" = "pbm_pts",
+											"FIS Points" = "fispoints"),
+					selected = "pbm"
+				),
 				hr(),
 				actionButton(
 					inputId = "snap_go",
 					label = "Reload"
 				),
 				hr(),
+				bookmarkButton(),
+				hr(),
 				helpText("Be aware that this graph is particularly",
-								 "meaningless for non-WC/TdS/WSC/OWG sprint races.")
+								 "meaningless for non-WC/TdS/WSC/OWG sprint races."),
+				hr(),
+				helpText("Traditionally I've used the raw PBM for WC-level",
+								 "distance races. PBM points will be more",
+								 "opinionated about field strength.")
 			),
 			
 			mainPanel(
@@ -382,6 +398,43 @@ ui <- navbarPage(
 				hr(),
 				conditionalPanel(condition = "input.snap_race_tbl_rows_selected != null",
 												 plotOutput(outputId = "snap_plot",height = "800px") %>% withSpinner())
+			)
+		)
+	),
+	
+	#### SPRINT HEAT PROGRESSIONS ####
+	tabPanel(
+		title = "Sprint Heat Progression",
+		value = "prog_tab",
+		
+		sidebarLayout(
+			
+			sidebarPanel(
+				dateInput(
+					inputId = "spr_heat_prog_date",
+					label = "Sprint race date (yyyy-mm-dd):",
+					value = as.character(Sys.Date())
+				),
+				radioButtons(
+					inputId = "spr_heat_prog_y_measure",
+					label = "Sprint heat measure:",
+					choices = c("Heat time" = "raw",
+											"Difference from median heat time" = "median",
+											"Difference from advancement threshold" = "thresh"),
+					selected = "raw"
+				),
+				hr(),
+				actionButton(
+					inputId = "spr_heat_prog_go",
+					label = "Reload"
+				)
+			),
+			
+			mainPanel(
+				DTOutput(outputId = "spr_heat_prog_race_tbl") %>% withSpinner(),
+				hr(),
+				conditionalPanel(condition = "input.spr_heat_prog_race_tbl_rows_selected != null",
+												 plotOutput(outputId = "spr_heat_prog_plot",height = "800px") %>% withSpinner())
 			)
 		)
 	),
@@ -396,6 +449,7 @@ ui <- navbarPage(
 )
 
 
+}
 
 #### SERVER ####
 server <- function(input,output,session){
@@ -621,7 +675,31 @@ server <- function(input,output,session){
 		}
 		snap_data(con_pool,ev_info,input$snap_top_pct)
 	})
-	output$snap_plot <- renderPlot({snap_plot(snap_data_r())})
+	output$snap_plot <- renderPlot({snap_plot(snap_data_r(),input$snap_dst_y_measure)})
+	#### SPRINT HEAT PROGRESSION PANEL ####
+	spr_heat_prog_get_events_r <- eventReactive(
+		input$spr_heat_prog_go,
+		{spr_heat_prog_get_events(con_pool,input$spr_heat_prog_date)}
+	)
+	output$spr_heat_prog_race_tbl <- renderDT({
+		spr_heat_prog_get_events_r()
+	},rownames = FALSE,selection = "single")
+	
+	spr_heat_prog_data_r <- reactive({
+		idx <- input$spr_heat_prog_race_tbl_rows_selected
+		if (!is.null(idx) && length(idx) == 1){
+			ev_info <- spr_heat_prog_get_events_r() %>%
+				slice(idx) %>%
+				select(eventid,primary_tag)
+		}else{
+			ev_info <- NULL
+		}
+		spr_heat_prog_data(con_pool,ev_info)
+		})
+	output$spr_heat_prog_plot <- renderPlot({
+		spr_heat_prog_plot(spr_heat_prog_data_r(),
+											 input$spr_heat_prog_y_measure)
+	})
 }
 
-shinyApp(ui = ui,server = server)
+shinyApp(ui = ui,server = server,enableBookmarking = "url")
