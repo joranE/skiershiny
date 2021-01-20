@@ -76,6 +76,9 @@ ss_dst_splits_data <- function(con,eventid){
 	dst_splits_all <- dplyr::tbl(src = con,"v_distance_splits") %>%
 		filter(eventid %in% local(eventid) & !is.na(split_km)) %>%
 		collect() %>%
+		group_by(eventid) %>%
+		complete(nesting(compid,name),split_km) %>%
+		fill(eventid,date,location,primary_tag,.direction = "downup") %>%
 		group_by(eventid,split_km) %>%
 		mutate(split_pb = (split_time - min(split_time,na.rm = TRUE)) / min(split_time,na.rm = TRUE)) %>%
 		group_by(eventid,compid) %>%

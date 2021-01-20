@@ -8,7 +8,7 @@ dst_split_get_events <- function(con,date){
 }
 
 dst_split_data <- function(con,ev_info){
-	if (is.null(ev_info) || length(ev_info) == 0){
+	if (is.null(ev_info) || length(ev_info) == 0 || nrow(ev_info) == 0){
 		return(NULL)
 	}
 	
@@ -27,6 +27,10 @@ dst_split_data <- function(con,ev_info){
 	}
 	
 	dst_race <- dst_race %>%
+		complete(nesting(compid,name),split_km) %>%
+		fill(eventid,date,location,primary_tag,.direction = "downup")
+	
+	dst_race <- dst_race %>%
 		group_by(split_km) %>%
 		mutate(time_back = split_time - min(split_time,na.rm = TRUE),
 					 pct_back = time_back / min(split_time,na.rm = TRUE),
@@ -43,12 +47,12 @@ dst_split_data <- function(con,ev_info){
 		as.data.frame()
 	
 	split_data <- bind_rows(dst_race %>% mutate(facet_label = "Overall Race % Back",y = pct_back),
-													dst_race %>% mutate(facet_label = "% Behind Fastest Split Pace",y = seg_pace_pct),
+													dst_race %>% mutate(facet_label = "% Behind Fastest Pace on Segment",y = seg_pace_pct),
 													dst_race %>% mutate(facet_label = "Overall Race Position",y = split_rank),
 													dst_race %>% mutate(facet_label = "Sec/Km Lost on Segment",y = seg_time_back_scl)) %>%
 		mutate(facet_label = factor(facet_label,
 																levels = c("Overall Race Position","Overall Race % Back",
-																					 "% Behind Fastest Split Pace","Sec/Km Lost on Segment")))
+																					 "% Behind Fastest Pace on Segment","Sec/Km Lost on Segment")))
 	
 	split_data
 }
@@ -61,7 +65,8 @@ dst_split_plot <- function(race_data,show_top = NULL){
 	if (!is.null(show_top)){
 		last_split <- max(race_data$split_km)
 		top_compid <- race_data %>%
-			filter(split_km == last_split & 
+			filter(split_km == last_split &
+						 	!is.na(split_rank) &
 						 	split_rank <= show_top) %>%
 			pull("compid")
 		race_data <- race_data %>%
@@ -76,9 +81,13 @@ dst_split_plot <- function(race_data,show_top = NULL){
 		geom_line(alpha = 0.5,na.rm = TRUE) + 
 		scale_x_continuous(breaks = unique(race_data$split_km),expand = c(0.01,0)) +
 		labs(x = "km",y = NULL) + 
-		theme(axis.text = element_text(size = 10))
+		theme(axis.text.x = element_text(size = rel(0.75),angle = 45),
+					axis.text.y = element_text(size = rel(0.75)),
+					axis.title.x = element_text(margin = margin(t = 0)))
 	
-	p_ly <- ggplotly(p,tooltip = "name") %>% config(displayModeBar = FALSE)
+	p_ly <- ggplotly(p,tooltip = "name") %>% 
+		layout(xaxis = list(title = list(standoff = 40),automargin = TRUE)) %>%
+		config(displayModeBar = FALSE)
 	p_ly_highlight <- highlight(p_ly,
 															on = "plotly_click",
 															off = "plotly_doubleclick",
