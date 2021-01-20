@@ -17,6 +17,7 @@ library(shinycssloaders)
 library(stringr)
 library(purrr)
 library(markdown)
+library(plotly)
 
 source("utils.R")
 source("ss_funs.R")
@@ -25,6 +26,7 @@ source("hth_funs.R")
 source("dev_funs.R")
 source("snap_funs.R")
 source("prog_funs.R")
+source("splt_funs.R")
 
 theme_set(theme_bw(base_size = 14))
 
@@ -438,6 +440,45 @@ ui <- function(request){
 			)
 		)
 	),
+	#### DST SPLITS PLOTLY ####
+	tabPanel(
+		title = "Distance Splits",
+		value = "splt_tab",
+		
+		sidebarLayout(
+			
+			sidebarPanel(
+				dateInput(
+					inputId = "dst_split_date",
+					label = "Distance race date (yyyy-mm-dd):",
+					value = as.character(Sys.Date())
+				),
+				numericInput(
+					inputId = "dst_split_top",
+					label = "Limit to top <x> finishers:",
+					value = 30
+				),
+				hr(),
+				actionButton(
+					inputId = "dst_split_go",
+					label = "Reload"
+				),
+				hr(),
+				helpText("Choose a date and click 'Reload' to show available races with split times.",
+								 "Select a race to show split time graphs.",
+								 "Click on a line to highlight a skier,",
+								 "shift-click to highlight multiple skiers.",
+								 "Double-click on a blank plot area to reset.")
+			),
+			
+			mainPanel(
+				DTOutput(outputId = "dst_split_race_tbl") %>% withSpinner(),
+				hr(),
+				conditionalPanel(condition = "input.dst_split_race_tbl_rows_selected != null",
+												 plotlyOutput(outputId = "dst_split_plot",height = "800px") %>% withSpinner())
+			)
+		)
+	),
 	
 	#### ABOUT ####
 	tabPanel(
@@ -699,6 +740,30 @@ server <- function(input,output,session){
 	output$spr_heat_prog_plot <- renderPlot({
 		spr_heat_prog_plot(spr_heat_prog_data_r(),
 											 input$spr_heat_prog_y_measure)
+	})
+	#### DST SPLIT PLOTLY PANEL ####
+	dst_split_get_events_r <- eventReactive(
+		input$dst_split_go,
+		{dst_split_get_events(con_pool,input$dst_split_date)}
+	)
+	output$dst_split_race_tbl <- renderDT({
+		dst_split_get_events_r()
+	},rownames = FALSE,selection = "single")
+	
+	dst_split_data_r <- reactive({
+		idx <- input$dst_split_race_tbl_rows_selected
+		if (!is.null(idx) && length(idx) == 1){
+			ev_info <- dst_split_get_events_r() %>%
+				slice(idx) %>%
+				select(eventid,primary_tag)
+		}else{
+			ev_info <- NULL
+		}
+		dst_split_data(con_pool,ev_info)
+	})
+	output$dst_split_plot <- renderPlotly({
+		dst_split_plot(dst_split_data_r(),
+									 input$dst_split_top)
 	})
 }
 

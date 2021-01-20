@@ -114,3 +114,20 @@ and the difference from the advancement threshold time. This last measure is an
 attempt to show how far people were from the minimum time necessary to advance to
 the next round. (In the special case of the finals, the 'threshold' is the 3rd 
 place time.) In general, all three measure look fairly similar.
+
+***
+
+#### Distance Split Times
+This section is for distance races where split times are available. You can 
+select a date and load available races that have split times (if any exist 
+on that date). Click on one of those races to show four views of the split 
+times:
+
+* overall race position
+* overall percent back
+* percent back from the fastest pace (km/sec) on that section
+* seconds lost (per km) on that section
+
+Hovering over individual lines will display the skier's name. Clicking on one
+will highlight that skier. Shift-clicking will select multiple skiers. Double
+clicking on a blank section of the plot will reset the highlighting.
