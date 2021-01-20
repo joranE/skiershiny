@@ -30,9 +30,9 @@ dev_dst_plot <- function(dev_dst_data){
 	
 	n_skier <- n_distinct(dev_dst_data$compid)
 	if (n_skier < 4) {
-		fw <- facet_wrap(~name,scales = "free",ncol = 1)
+		fw <- facet_wrap(~name,scales = "free_y",ncol = 1)
 	} else {
-		fw <- facet_wrap(~name,scales = "free")
+		fw <- facet_wrap(~name,scales = "free_y")
 	}
 	
 	dev_ref <- dev_dst_data %>%
@@ -46,7 +46,9 @@ dev_dst_plot <- function(dev_dst_data){
 		geom_point(data = dev_dst_data,aes(x = age,y = fispoints),alpha = 0.5) + 
 	  geom_line(data = dev_ref,aes(x = age,y = val,color = pct,group = pct)) + 
 		scale_color_manual(values = c(`50th` = "blue",`10th` = "red")) +
-		labs(x = "Age",y = "FIS Points",color = "Target FIS Point %-tile")
+		labs(x = "Age",y = "FIS Points",color = "Target FIS Point %-tile",
+				 caption = "@statskier - statisticalskier.com") + 
+		theme(legend.position = "top")
 }
 
 #### SPRINT ####
@@ -72,9 +74,9 @@ dev_spr_plot <- function(dev_spr_data){
 	
 	n_skier <- n_distinct(dev_spr_data$compid)
 	if (n_skier < 4) {
-		fw <- facet_wrap(~name,scales = "free",ncol = 1)
+		fw <- facet_wrap(~name,scales = "free_y",ncol = 1)
 	} else {
-		fw <- facet_wrap(~name,scales = "free")
+		fw <- facet_wrap(~name,scales = "free_y")
 	}
 	
 	dev_ref <- dev_spr_data %>%
@@ -88,5 +90,7 @@ dev_spr_plot <- function(dev_spr_data){
 		geom_point(data = dev_spr_data,aes(x = age,y = fispoints),alpha = 0.5) + 
 		geom_line(data = dev_ref,aes(x = age,y = val,color = pct,group = pct)) + 
 		scale_color_manual(values = c(`50th` = "blue",`10th` = "red")) +
-		labs(x = "Age",y = "FIS Points",color = "Target FIS Point %-tile")
+		labs(x = "Age",y = "FIS Points",color = "Target FIS Point %-tile",
+				 caption = "@statskier - statisticalskier.com") + 
+		theme(legend.position = "top")
 }

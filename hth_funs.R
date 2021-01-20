@@ -60,7 +60,8 @@ hth_dst_plot <- function(dst_data,y_measure = "rnk_diff"){
 		geom_point() + 
 		labs(x = "Date",y = y_lab,
 				 title = paste(nm,"vs:"),
-				 subtitle = glue("Positive values are wins for {nm}."))
+				 subtitle = glue("Positive values are wins for {nm}."),
+				 caption = "@statskier - statisticalskier.com")
 	p
 }
 
@@ -126,7 +127,8 @@ hth_dst_splits_plot <- function(split_data,ath_ids){
 		geom_line(data = dst_splits_red,
 							aes(x = split_km,y = split_tb,color = name,group = name)) +
 		labs(x = "km",y = "Time Back (sec)",
-				 color = "Skier",title = "Selected Skiers")
+				 color = "Skier",title = "Selected Skiers",
+				 caption = "@statskier - statisticalskier.com")
 	
 	p_all + p_red + patchwork::plot_layout(ncol = 1)
 }
@@ -208,7 +210,8 @@ hth_spr_plot <- function(spr_data,y_measure){
 		geom_point() + 
 		labs(x = "Date",y = y_lab,
 				 title = paste(nm,"vs:"),
-				 subtitle = glue::glue("Positive values are wins for {nm}."))
+				 subtitle = glue::glue("Positive values are wins for {nm}."),
+				 caption = "@statskier - statisticalskier.com")
 	p
 }
 
@@ -253,5 +256,6 @@ hth_spr_heats_plot <- function(spr_heats_data){
 		geom_jitter(data = spr_heats_data,aes(x = spr_round,y = heat_time_diff),width = 0.25) + 
 		labs(x = "Round",y = "Time Difference (sec)",
 				 title = paste(nm,"vs:"),
-				 subtitle = glue::glue("Positive values are wins for {nm}."))
+				 subtitle = glue::glue("Positive values are wins for {nm}."),
+				 caption = "@statskier - statisticalskier.com")
 }
